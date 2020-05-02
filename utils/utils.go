@@ -80,3 +80,10 @@ func Contains(word string, char string) bool {
 	}
 	return false
 }
+
+func isTerminal(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
+	}
+	return false
+}

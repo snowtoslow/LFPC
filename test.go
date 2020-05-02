@@ -179,3 +179,10 @@ func addNewStartingSymbol(myMap *[]mapsWithDuplicate) {
 		}
 	}
 }
+
+func isTerminal(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
+	}
+	return false
+}
