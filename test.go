@@ -15,6 +15,7 @@ func main() {
 
 	var myarray []mapsWithDuplicate
 	createMyMap(readLines("varianta21.txt"), &myarray)
+	addNewStartingSymbol(&myarray)
 	removeEpsilonProduction(&myarray)
 	makeUnitSubstitution(&myarray)
 	fmt.Print(myarray)
@@ -38,7 +39,6 @@ func readLines(path string) []string {
 }
 
 func createMyMap(lines []string, myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate {
-	*myarray = append(*myarray, mapsWithDuplicate{"S0", "S"}) //create a separate function for this later
 	for i := 0; i < len(lines); i++ {
 		for j := 0; j < len(lines[i]); j++ {
 			if lines[i][j] == '-' {
@@ -86,34 +86,28 @@ func findEpsilonProductionsSymbols(myArray *[]mapsWithDuplicate) []string {
 }
 
 //unit productions
-func removeUnitProductions(myarray []mapsWithDuplicate) {
-	/*myarray[i].values*/
-	for i := 0; i < len(myarray); i++ {
-
-	}
-
-}
-
 func makeUnitSubstitution(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate {
-	for i := 0; i < len(findUnitProductions(*myarray)); i++ {
-		/*fmt.Printf("%s--->%s",findUnitProductions(myarray)[i].symbols,getProductionBySymbol(myarray,findUnitProductions(myarray)[i].values))*/
-		for j := 0; j < len(getProductionBySymbol(*myarray, findUnitProductions(*myarray)[i].values)); j++ {
-			*myarray = append(*myarray, mapsWithDuplicate{findUnitProductions(*myarray)[i].symbols, getProductionBySymbol(*myarray, findUnitProductions(*myarray)[i].values)[j]})
+	var arrayToDelete []mapsWithDuplicate
+	for i := len(*myarray) - 1; i > 0; i-- {
+		if isUnitProduction((*myarray)[i]) {
+			arrayToDelete = append(arrayToDelete, mapsWithDuplicate{(*myarray)[i].symbols, (*myarray)[i].values})
+			for j := 0; j < len(getProductionBySymbol(*myarray, (*myarray)[i].values)); j++ {
+				*myarray = append(*myarray, mapsWithDuplicate{(*myarray)[i].symbols, getProductionBySymbol(*myarray, (*myarray)[i].values)[j]})
+			}
+			deleteMultipleElements1(myarray, arrayToDelete)
+			continue
 		}
 	}
-	return deleteMultipleElements1(myarray, findUnitProductions(*myarray))
+	return myarray
 }
 
-func findUnitProductions(myarray []mapsWithDuplicate) []mapsWithDuplicate {
-	var unitProductionsArray []mapsWithDuplicate
-	for i := len(myarray) - 1; i > 0; i-- {
-		if (len(myarray[i].symbols) == 1 && len(myarray[i].values) == 1) &&
-			(isNonTerminal(myarray[i].symbols[0]) && isNonTerminal(myarray[i].values[0])) {
-			unitProductionsArray = append(unitProductionsArray, mapsWithDuplicate{myarray[i].symbols, myarray[i].values})
-		}
+func isUnitProduction(myarray mapsWithDuplicate) bool {
+	if (len(myarray.symbols) == 1 && len(myarray.values) == 1) &&
+		(isNonTerminal(myarray.symbols[0]) && isNonTerminal(myarray.values[0])) {
+		return true
 	}
-	unitProductionsArray = append(unitProductionsArray, mapsWithDuplicate{"S0", "S"}) //will be added lately
-	return unitProductionsArray
+
+	return false
 }
 
 func getProductionBySymbol(myarray []mapsWithDuplicate, symbol string) []string {
@@ -171,4 +165,17 @@ func isNonTerminal(char uint8) bool {
 		return true
 	}
 	return false
+}
+
+func findStartingSymbol(myMap *[]mapsWithDuplicate) string {
+	return (*myMap)[0].symbols
+}
+
+func addNewStartingSymbol(myMap *[]mapsWithDuplicate) {
+	for i := 0; i < len(*myMap); i++ {
+		if contains((*myMap)[i].values, findStartingSymbol(myMap)) {
+			*myMap = append(*myMap, mapsWithDuplicate{"W", findStartingSymbol(myMap)})
+			break
+		}
+	}
 }
