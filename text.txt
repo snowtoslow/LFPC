@@ -1,0 +1,20 @@
+1)for _,k := range lines{
+		for i:=0;i<len(k);i++  {
+			if k[i] =='-' && k[i]!=' ' {
+				myMap[k[:i]] = k[i+1:]
+			}
+		}
+	}
+
+
+2)
+	test := []string{lines[0],lines[1],lines[2]}
+
+    	for i:=0;i<len(test);i++  {
+    		for j:=0;j<len(test[i]) ;j++  {
+    			if test[i][j] == '-' {
+    				myMap[test[i][:j]] = test[i][j+1:]
+    			}
+    		}
+
+    	}
