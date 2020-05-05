@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 func main() {
 
-	fmt.Print(isTerminalString1("aaaaaV"))
+	fmt.Print(isTerminalString1("aaV"))
 
 
 
@@ -32,12 +31,12 @@ func isTerminalString1(string2 string) bool{
 			if isTerminalChar1(string2[j]) {
 				continue
 			}else if !isTerminalChar1(string2[j]){
-				log.Print("HERE")
+				fmt.Println("HERE")
 				return false
 			}
 		}
 	}
-
+	fmt.Print("THERE")
 	return false
 }
 
