@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -18,7 +18,9 @@ func main() {
 	addNewStartingSymbol(&myarray)
 	removeEpsilonProduction(&myarray)
 	makeUnitSubstitution(&myarray)
-	fmt.Print(myarray)
+	//removeNonGeneratingSymbolsTest(&myarray)
+	//removeNonGeneratingSymbols(&myarray)
+	//fmt.Print(myarray)
 
 }
 
@@ -65,8 +67,8 @@ func removeEpsilonProduction(myArray *[]mapsWithDuplicate) *[]mapsWithDuplicate 
 func makeSubstitution(myArray *[]mapsWithDuplicate, stringsArray []string) *[]mapsWithDuplicate {
 	for i := 0; i < len(*myArray); i++ {
 		for j := 0; j < len(stringsArray); j++ {
-			/*fmt.Printf("%s--->%s==%t\n",myArray[i].values,stringsArray[j],contains(myArray[i].values,stringsArray[j]))*/
-			if contains((*myArray)[i].values, stringsArray[j]) {
+			/*fmt.Printf("%s--->%s==%t\n",myArray[i].values,stringsArray[j],stringContains(myArray[i].values,stringsArray[j]))*/
+			if stringContains((*myArray)[i].values, stringsArray[j]) {
 				*myArray = append(*myArray, mapsWithDuplicate{(*myArray)[i].symbols, myTrimFunc((*myArray)[i].values, stringsArray[j])})
 			}
 		}
@@ -151,7 +153,7 @@ func myTrimFunc(word string, charToTrim string) string {
 	return "WORD DOES NOT CONTAIN CHARACTER"
 }
 
-func contains(word string, char string) bool {
+func stringContains(word string, char string) bool {
 	for i := 0; i < len(word); i++ {
 		if string(word[i]) == char {
 			return true
@@ -173,16 +175,77 @@ func findStartingSymbol(myMap *[]mapsWithDuplicate) string {
 
 func addNewStartingSymbol(myMap *[]mapsWithDuplicate) {
 	for i := 0; i < len(*myMap); i++ {
-		if contains((*myMap)[i].values, findStartingSymbol(myMap)) {
+		if stringContains((*myMap)[i].values, findStartingSymbol(myMap)) {
 			*myMap = append(*myMap, mapsWithDuplicate{"W", findStartingSymbol(myMap)})
 			break
 		}
 	}
 }
 
-func isTerminal(char uint8) bool{
+/*func removeNonGeneratingSymbolsTest(myarray *[]mapsWithDuplicate){
+	//var arrayOfNonGeneratingSymbols []mapsWithDuplicate
+	for i:=0;i<len(*myarray);i++{
+		for j:=0;j<len(getProductionBySymbol(*myarray,(*myarray)[i].symbols));j++ {
+			if len(getProductionBySymbol(*myarray,(*myarray)[i].symbols)[j]) == 1 && isTerminalChar(getProductionBySymbol(*myarray,(*myarray)[i].symbols)[j][0]){
+				continue
+			}else if len(getProductionBySymbol(*myarray,(*myarray)[i].symbols)[j])>2 {
+
+			}
+		}
+	}
+}*/
+func removeNonGeneratingSymbolsTest(myarray *[]mapsWithDuplicate){//working for my variant
+	for i:=0;i<len(*myarray);i++ {
+
+	}
+}
+
+
+
+func removeNonGeneratingSymbols(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{//working for my variant
+	var arrayOfNonGeneratingSymbols []mapsWithDuplicate
+	for i:=0;i<len(*myarray);i++{
+		if len((*myarray)[i].values)==1 && isTerminalChar((*myarray)[i].values[0]) {
+			continue
+		}else if len((*myarray)[i].values)>1{
+			for j:=0;j<len((*myarray)[i].values);j++ {
+				if isTerminalChar((*myarray)[i].values[j])  {
+					continue
+				}
+
+			}
+		} else {
+			arrayOfNonGeneratingSymbols = append(arrayOfNonGeneratingSymbols,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
+		}
+	}
+	log.Print("ARRAY TO REMOVE:",arrayOfNonGeneratingSymbols)
+	return deleteMultipleElements1(myarray,arrayOfNonGeneratingSymbols)
+}
+
+func isTerminalString(string2 string) bool{
+	myRune := []rune(string2)
+	for i:=0;i<len(myRune);i++ {
+		if isTerminalChar(uint8(myRune[i])) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTerminalChar(char uint8) bool{
 	if char >=97 && char<=122{
 		return true
+	}
+	return false
+}
+
+func hasATerminal(nonTerminal string,array []mapsWithDuplicate) bool{
+	for i:=0;i<len(getProductionBySymbol(array,nonTerminal));i++{
+		if len(getProductionBySymbol(array,nonTerminal))==1 && isTerminalChar(getProductionBySymbol(array,nonTerminal)[i][0]) {
+			return true
+		}else if len(getProductionBySymbol(array,nonTerminal))>1 {
+
+		}
 	}
 	return false
 }

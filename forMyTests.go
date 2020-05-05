@@ -1,20 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 func main() {
 
-	myArray := []string{"A","B","A","B","A","B"}
+	fmt.Print(isTerminalString1("aaaaaV"))
 
-	for i:=0;i<len(myArray);i++ {
-		if myArray[i]=="B" {
-			myArray[i] = myArray[len(myArray)-1]
-			myArray[len(myArray)-1] = ""
-			myArray = myArray[:len(myArray)-1]
-		}
-	}
-	fmt.Println(myArray)
-	fmt.Println(len(myArray))
 
 
 }
@@ -24,6 +18,32 @@ func containsTest (word string,char uint8) bool{
 		if word[i] == char {
 			return true
 		}
+	}
+	return false
+}
+
+func isTerminalString1(string2 string) bool{
+	if len(string2)==1 && isTerminalChar1(string2[0]){
+		return true
+	}else if len(string2)==1 && !isTerminalChar1(string2[0]){
+		return false
+	} else if len(string2)>1 {
+		for j:=0;j<len(string2);j++ {
+			if isTerminalChar1(string2[j]) {
+				continue
+			}else if !isTerminalChar1(string2[j]){
+				log.Print("HERE")
+				return false
+			}
+		}
+	}
+
+	return false
+}
+
+func isTerminalChar1(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
 	}
 	return false
 }
