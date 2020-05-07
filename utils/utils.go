@@ -80,3 +80,37 @@ func Contains(word string, char string) bool {
 	}
 	return false
 }
+
+func hasTerminal(stringArray []string) bool{
+	for i:=0;i<len(stringArray);i++ {
+		if isTerminalString(stringArray[i]) {
+			return true
+			break
+		}
+	}
+	return false
+}
+
+func isTerminalString(string2 string) bool{
+	if len(string2)==1 && isTerminal(string2[0]){
+		return true
+	}else if len(string2)==1 && !isTerminal(string2[0]){
+		return false
+	} else if len(string2)>1 {
+		for j:=0;j<len(string2);j++ {
+			if isTerminal(string2[j]) && j==len(string2)-1  {
+				continue
+			}else if !isTerminal(string2[j]) && j==len(string2)-1{
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func isTerminal(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
+	}
+	return false
+}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -18,7 +18,9 @@ func main() {
 	addNewStartingSymbol(&myarray)
 	removeEpsilonProduction(&myarray)
 	makeUnitSubstitution(&myarray)
-	fmt.Print(myarray)
+	removeNonGeneratingSymbols(&myarray)
+	removeUnreachebleSymbols(&myarray)
+	//fmt.Print(myarray)
 
 }
 
@@ -65,8 +67,8 @@ func removeEpsilonProduction(myArray *[]mapsWithDuplicate) *[]mapsWithDuplicate 
 func makeSubstitution(myArray *[]mapsWithDuplicate, stringsArray []string) *[]mapsWithDuplicate {
 	for i := 0; i < len(*myArray); i++ {
 		for j := 0; j < len(stringsArray); j++ {
-			/*fmt.Printf("%s--->%s==%t\n",myArray[i].values,stringsArray[j],contains(myArray[i].values,stringsArray[j]))*/
-			if contains((*myArray)[i].values, stringsArray[j]) {
+			/*fmt.Printf("%s--->%s==%t\n",myArray[i].values,stringsArray[j],stringContains(myArray[i].values,stringsArray[j]))*/
+			if stringContains((*myArray)[i].values, stringsArray[j]) {
 				*myArray = append(*myArray, mapsWithDuplicate{(*myArray)[i].symbols, myTrimFunc((*myArray)[i].values, stringsArray[j])})
 			}
 		}
@@ -151,7 +153,7 @@ func myTrimFunc(word string, charToTrim string) string {
 	return "WORD DOES NOT CONTAIN CHARACTER"
 }
 
-func contains(word string, char string) bool {
+func stringContains(word string, char string) bool {
 	for i := 0; i < len(word); i++ {
 		if string(word[i]) == char {
 			return true
@@ -173,9 +175,92 @@ func findStartingSymbol(myMap *[]mapsWithDuplicate) string {
 
 func addNewStartingSymbol(myMap *[]mapsWithDuplicate) {
 	for i := 0; i < len(*myMap); i++ {
-		if contains((*myMap)[i].values, findStartingSymbol(myMap)) {
+		if stringContains((*myMap)[i].values, findStartingSymbol(myMap)) {
 			*myMap = append(*myMap, mapsWithDuplicate{"W", findStartingSymbol(myMap)})
 			break
 		}
 	}
 }
+
+func hasTerminal(stringArray []string) bool{
+	for i:=0;i<len(stringArray);i++ {
+		if isTerminalString(stringArray[i]) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTerminalString(string2 string) bool{
+	if len(string2)==1 && isTerminalChar(string2[0]){
+		return true
+	}else if len(string2)==1 && !isTerminalChar(string2[0]){
+		return false
+	} else if len(string2)>1 {
+		for j:=0;j<len(string2);j++ {
+			if isTerminalChar(string2[j]) && j==len(string2)-1  {
+				continue
+			}else if !isTerminalChar(string2[j]) && j==len(string2)-1{
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func isTerminalChar(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
+	}
+	return false
+}
+
+func arrayContains(stringArray []string, containingString string) bool{
+	for i:=0;i<len(stringArray); {
+		if stringArray[i] == containingString {
+			return true
+		}
+	}
+	return false
+}
+
+
+// non generating symbols
+func removeNonGeneratingSymbols(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{
+	var arrayOfNonGeneratingSymbols []mapsWithDuplicate
+	for i:=0;i<len(*myarray);i++ {
+		if hasTerminal(getProductionBySymbol(*myarray,(*myarray)[i].symbols)) {
+			continue
+		}
+		arrayOfNonGeneratingSymbols = append(arrayOfNonGeneratingSymbols,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
+	}
+	log.Printf("ARRAY TO REMOVE:%v\n",arrayOfNonGeneratingSymbols)
+	return deleteMultipleElements1(myarray,arrayOfNonGeneratingSymbols)
+}
+
+func removeUnreachebleSymbols(myarray *[]mapsWithDuplicate){
+	/*var arrayToRemove []mapsWithDuplicate
+
+	for i:=0;i<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray)));i++{
+		for j:=0;j<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i]);j++{
+			if isNonTerminal(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i][j])==false {
+				arrayToRemove = append(arrayToRemove,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
+				//fmt.Println(string(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i][j]))
+			}
+		}
+
+	}
+	fmt.Println(arrayToRemove)*/
+
+	//fmt.Println(getProductionBySymbol(*myarray,findStartingSymbol(myarray)))
+}
+
+
+/*for i:=0;i<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray)));i++{
+if !stringContains(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i],(*myarray)[i].symbols) {
+arrayToRemove = append(arrayToRemove,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
+}
+}
+fmt.Println(arrayToRemove)*/
+
+
