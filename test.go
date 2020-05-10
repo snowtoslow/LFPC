@@ -19,9 +19,6 @@ func main() {
 	removeEpsilonProduction(&myarray)
 	makeUnitSubstitution(&myarray)
 	removeNonGeneratingSymbols(&myarray)
-	//removeUnreachebleSymbols(&myarray)
-	/*getNewProductionsFromStartingSymbolProductions(getStaringSymbolsProduction(&myarray),&myarray)
-	fmt.Println(compareProductions(getMyArrayProductions(&myarray),getStaringSymbolsProduction(&myarray)))*/
 	removeUnreachebleSymbols1(&myarray)
 	fmt.Print(myarray)
 
