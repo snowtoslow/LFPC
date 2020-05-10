@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"log"
+	"fmt"
 	"os"
 )
 
@@ -19,8 +19,8 @@ func main() {
 	removeEpsilonProduction(&myarray)
 	makeUnitSubstitution(&myarray)
 	removeNonGeneratingSymbols(&myarray)
-	removeUnreachebleSymbols(&myarray)
-	//fmt.Print(myarray)
+	removeUnreachebleSymbols1(&myarray)
+	fmt.Print(myarray)
 
 }
 
@@ -229,38 +229,58 @@ func arrayContains(stringArray []string, containingString string) bool{
 func removeNonGeneratingSymbols(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{
 	var arrayOfNonGeneratingSymbols []mapsWithDuplicate
 	for i:=0;i<len(*myarray);i++ {
-		if hasTerminal(getProductionBySymbol(*myarray,(*myarray)[i].symbols)) {
+		if hasTerminal(getProductionBySymbol(/*fmt.Println(getProductionBySymbol(*myarray,findStartingSymbol(myarray)))*/*myarray,(*myarray)[i].symbols)) {
 			continue
 		}
 		arrayOfNonGeneratingSymbols = append(arrayOfNonGeneratingSymbols,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
 	}
-	log.Printf("ARRAY TO REMOVE:%v\n",arrayOfNonGeneratingSymbols)
 	return deleteMultipleElements1(myarray,arrayOfNonGeneratingSymbols)
 }
 
-func removeUnreachebleSymbols(myarray *[]mapsWithDuplicate){
-	/*var arrayToRemove []mapsWithDuplicate
-
-	for i:=0;i<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray)));i++{
-		for j:=0;j<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i]);j++{
-			if isNonTerminal(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i][j])==false {
-				arrayToRemove = append(arrayToRemove,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
-				//fmt.Println(string(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i][j]))
+//unreacheble symbols
+func removeUnreachebleSymbols1(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{
+	var arrayToDelete []mapsWithDuplicate
+	for k := range compareProductions(getMyArrayProductions(myarray),getStaringSymbolsProduction(myarray)){
+		if compareProductions(getMyArrayProductions(myarray),getStaringSymbolsProduction(myarray))[k]==false {
+			for _,n := range getProductionBySymbol(*myarray,k){
+				arrayToDelete = append(arrayToDelete,mapsWithDuplicate{k,n})
 			}
 		}
-
 	}
-	fmt.Println(arrayToRemove)*/
-
-	//fmt.Println(getProductionBySymbol(*myarray,findStartingSymbol(myarray)))
+	return deleteMultipleElements1(myarray,arrayToDelete)
 }
 
 
-/*for i:=0;i<len(getProductionBySymbol(*myarray,findStartingSymbol(myarray)));i++{
-if !stringContains(getProductionBySymbol(*myarray,findStartingSymbol(myarray))[i],(*myarray)[i].symbols) {
-arrayToRemove = append(arrayToRemove,mapsWithDuplicate{(*myarray)[i].symbols,(*myarray)[i].values})
+func compareProductions(myMap map[string]bool,startingSymbolMap map[string]bool) map[string]bool{
+	for k := range myMap{
+		for i :=range startingSymbolMap{
+			if k==i {
+				myMap[k]=true
+			}
+		}
+	}
+	return myMap
 }
-}
-fmt.Println(arrayToRemove)*/
 
+func getMyArrayProductions(myarray *[]mapsWithDuplicate) map[string]bool{
+	myMap := make(map[string]bool)
+	for i:=0;i<len(*myarray);i++ {
+		myMap[(*myarray)[i].symbols] = false
+	}
+	return myMap
+}
+
+
+func getStaringSymbolsProduction(myarray *[]mapsWithDuplicate) map[string]bool{
+	myMap := make(map[string]bool)
+	for i:=0;i<len(getProductionBySymbol(*myarray,"W"));i++ {
+		for _,v := range getProductionBySymbol(*myarray,"W")[i]{
+			if isNonTerminal(uint8(v)) {
+				myMap["W"] = true
+				myMap[string(uint8(v))] = true
+			}
+		}
+	}
+	return myMap
+}
 
