@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 )
 
@@ -20,6 +21,7 @@ func main() {
 	makeUnitSubstitution(&myarray)
 	removeNonGeneratingSymbols(&myarray)
 	removeUnreachebleSymbols1(&myarray)
+	getArrayOfNewSymbols(duplicateCount(getProductionInWrongForm(&myarray)),&myarray)
 	fmt.Print(myarray)
 
 }
@@ -215,13 +217,27 @@ func isTerminalChar(char uint8) bool{
 	return false
 }
 
-func arrayContains(stringArray []string, containingString string) bool{
-	for i:=0;i<len(stringArray); {
-		if stringArray[i] == containingString {
-			return true
+func RandomStringGenerator(length int,letterRunes []rune) string {
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
+func createAccessibleRunes(arrayToDelete map[string]bool) []rune{
+	var letterRunes = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	for i:=0;i<len(letterRunes);i++{
+		url := letterRunes[i]
+		for rem := range arrayToDelete{
+			if string(url)==rem {
+				letterRunes = append(letterRunes[:i],letterRunes[i+1:]...)
+				i--
+				break
+			}
 		}
 	}
-	return false
+	return letterRunes
 }
 
 
@@ -237,7 +253,7 @@ func removeNonGeneratingSymbols(myarray *[]mapsWithDuplicate) *[]mapsWithDuplica
 	return deleteMultipleElements1(myarray,arrayOfNonGeneratingSymbols)
 }
 
-//unreacheble symbols
+//unreacheble symbols - это все сранный костыль так как я говнокодер и ничего лучше после дня попыток не смог придумать :)
 func removeUnreachebleSymbols1(myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{
 	var arrayToDelete []mapsWithDuplicate
 	for k := range compareProductions(getMyArrayProductions(myarray),getStaringSymbolsProduction(myarray)){
@@ -282,5 +298,85 @@ func getStaringSymbolsProduction(myarray *[]mapsWithDuplicate) map[string]bool{
 		}
 	}
 	return myMap
+}
+
+
+func getArrayOfNewSymbols(mymap map[string]int,myarray *[]mapsWithDuplicate) *[]mapsWithDuplicate{
+	myFirstMap := make(map[string]string)
+	myMap := make(map[string]string)
+	for k :=range mymap{
+		myFirstMap[k[0:len(k)-1]]=RandomStringGenerator(1,createAccessibleRunes(getStaringSymbolsProduction(myarray)))
+		myMap[(*myarray)[getTerminalByProduction(*myarray,(*myarray)[getTerminalByProduction(*myarray,k)].values)].values]=
+		(*myarray)[getTerminalByProduction(*myarray,(*myarray)[getTerminalByProduction(*myarray,k)].values)].values[0:len(k)-1]
+		*myarray = append(*myarray,mapsWithDuplicate{RandomStringGenerator(1,createAccessibleRunes(getStaringSymbolsProduction(myarray))),k[0:len(k)-1]})
+	}
+
+	for i:=0;i<len(*myarray);i++{
+		for k,v := range createArrayOfNewSymbols(myMap,myFirstMap){
+			if (*myarray)[i].values == k{
+				(*myarray)[i].values = v
+			}
+		}
+
+	}
+
+	return myarray
+}
+
+
+
+func createArrayOfNewSymbols(myMap map[string]string,myFirstMap map[string]string) map[string]string{
+	newMap := make(map[string]string)
+	for key,value:=range myMap{
+		for k,v := range myFirstMap{
+			if value==k {
+				newMap[key]=v+key[len(k):]
+			}
+		}
+	}
+	return newMap
+}
+
+
+
+func getTerminalByProduction(myArray []mapsWithDuplicate,input string) int{
+	for i:=0;i<len(myArray);i++{
+		if myArray[i].values == input {
+			return i
+		}
+	}
+	return 0
+}
+
+
+func duplicateCount(list []string) map[string]int {
+
+	duplicateFrequency := make(map[string]int)
+
+	for _, item := range list {
+		// check if the item/element exist in the duplicate_frequency map
+
+		_, exist := duplicateFrequency[item]
+
+		if exist {
+			duplicateFrequency[item] += 1 // increase counter by 1 if already in the map
+		} else {
+			duplicateFrequency[item] = 1 // else start counting from 1
+		}
+	}
+	return duplicateFrequency
+}
+
+func getProductionInWrongForm(myarray *[]mapsWithDuplicate) []string{
+	var wrongFormArray []string
+	for k := range getMyArrayProductions(myarray){
+		for _,v :=range getProductionBySymbol(*myarray,k) {
+			if (len(v) == 2 && isTerminalChar(v[0]) && isNonTerminal(v[1])) ||
+				(len(v) == 2 && isNonTerminal(v[0]) && isTerminalChar(v[1])) || len(v) > 2 {
+				wrongFormArray = append(wrongFormArray, v)
+			}
+		}
+	}
+	return wrongFormArray
 }
 

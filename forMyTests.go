@@ -1,14 +1,25 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
 
-	myArray := []string{"Vova","mama","MIsha","masha"}
-	fmt.Print(arrayContains2(myArray,"costea"))
+	/*fmt.Print(isTerminalString1("AA"))*/
+	myLeft("aBdB","aBd")
 
+}
+
+
+
+func myLeft(string2 string,string3 string){
+	for i,r := range string2{
+		for n,m := range string3{
+			if r==m {
+				fmt.Print(string2[n:i])
+			}
+
+		}
+	}
 }
 
 func arrayContains2(stringArray []string, containingString string) bool{
@@ -39,12 +50,10 @@ func isTerminalString1(string2 string) bool{
 			if isTerminalChar1(string2[j]) && j==len(string2)-1  {
 				continue
 			}else if !isTerminalChar1(string2[j]) && j==len(string2)-1{
-				fmt.Println("HERE")
 				return false
 			}
 		}
 	}
-	fmt.Print("THERE")
 	return true
 }
 

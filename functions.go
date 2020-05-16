@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 func main() {
@@ -78,7 +79,7 @@ func deleteByNumber(array []rune ,number rune) []rune {
 	return array
 }
 
-func deleteMultipleElements(baseArray []rune, arrayToDelete []rune) []rune  {
+func DeleteMultipleElements(baseArray []rune, arrayToDelete []rune) []rune  {
 	for i:=0;i<len(baseArray);i++{
 		url := baseArray[i]
 		for _,rem := range arrayToDelete{
@@ -91,4 +92,14 @@ func deleteMultipleElements(baseArray []rune, arrayToDelete []rune) []rune  {
 	}
 	return baseArray
 
+}
+
+func RandomString(length int) string {
+	var letterRunes = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
