@@ -11,7 +11,7 @@ func CreateMyMap(lines []string, myarray *[]structure.MapsWithDuplicate) *[]stru
 	for i := 0; i < len(lines); i++ {
 		for j := 0; j < len(lines[i]); j++ {
 			if lines[i][j] == '-' {
-				*myarray = append(*myarray, structure.MapsWithDuplicate{lines[i][:j], lines[i][j+1:]})
+				*myarray = append(*myarray, structure.MapsWithDuplicate{Symbols: lines[i][:j], Values: lines[i][j+1:]})
 			}
 		}
 	}
@@ -67,14 +67,14 @@ func MyTrimFunc(word string, charToTrim string) string {
 
 func AddNewStartingSymbol(myMap *[]structure.MapsWithDuplicate) {
 	for i := 0; i < len(*myMap); i++ {
-		if Contains((*myMap)[i].Values, findStartingSymbol(myMap)) {
-			*myMap = append(*myMap, structure.MapsWithDuplicate{Symbols: "W", Values: findStartingSymbol(myMap)})
+		if Contains((*myMap)[i].Values, FindStartingSymbol(myMap)) {
+			*myMap = append(*myMap, structure.MapsWithDuplicate{Symbols: "W", Values: FindStartingSymbol(myMap)})
 			break
 		}
 	}
 }
 
-func findStartingSymbol(myMap *[]structure.MapsWithDuplicate) string {
+func FindStartingSymbol(myMap *[]structure.MapsWithDuplicate) string {
 	return (*myMap)[0].Symbols
 }
 
