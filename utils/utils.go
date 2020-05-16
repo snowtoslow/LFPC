@@ -3,10 +3,23 @@ package utils
 import (
 	structure "awesomeProject/mystruct"
 	"bufio"
+	"math/rand"
 	"os"
 )
 
-func readLines(path string) []string {
+func CreateMyMap(lines []string, myarray *[]structure.MapsWithDuplicate) *[]structure.MapsWithDuplicate {
+	for i := 0; i < len(lines); i++ {
+		for j := 0; j < len(lines[i]); j++ {
+			if lines[i][j] == '-' {
+				*myarray = append(*myarray, structure.MapsWithDuplicate{Symbols: lines[i][:j], Values: lines[i][j+1:]})
+			}
+		}
+	}
+	return myarray
+}
+
+
+func ReadLines(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil
@@ -52,16 +65,16 @@ func MyTrimFunc(word string, charToTrim string) string {
 	return "WORD DOES NOT CONTAIN CHARACTER"
 }
 
-func addNewStartingSymbol(myMap *[]structure.MapsWithDuplicate) {
+func AddNewStartingSymbol(myMap *[]structure.MapsWithDuplicate) {
 	for i := 0; i < len(*myMap); i++ {
-		if Contains((*myMap)[i].Values, findStartingSymbol(myMap)) {
-			*myMap = append(*myMap, structure.MapsWithDuplicate{Symbols: "W", Values: findStartingSymbol(myMap)})
+		if Contains((*myMap)[i].Values, FindStartingSymbol(myMap)) {
+			*myMap = append(*myMap, structure.MapsWithDuplicate{Symbols: "W", Values: FindStartingSymbol(myMap)})
 			break
 		}
 	}
 }
 
-func findStartingSymbol(myMap *[]structure.MapsWithDuplicate) string {
+func FindStartingSymbol(myMap *[]structure.MapsWithDuplicate) string {
 	return (*myMap)[0].Symbols
 }
 
@@ -81,7 +94,7 @@ func Contains(word string, char string) bool {
 	return false
 }
 
-func hasTerminal(stringArray []string) bool{
+func HasTerminal(stringArray []string) bool{
 	for i:=0;i<len(stringArray);i++ {
 		if isTerminalString(stringArray[i]) {
 			return true
@@ -89,6 +102,19 @@ func hasTerminal(stringArray []string) bool{
 		}
 	}
 	return false
+}
+
+func GetStaringSymbolsProduction(myarray *[]structure.MapsWithDuplicate) map[string]bool{
+	myMap := make(map[string]bool)
+	for i:=0;i<len(GetProductionBySymbol(*myarray,"W"));i++ {
+		for _,v := range GetProductionBySymbol(*myarray,"W")[i]{
+			if IsNonTerminal(uint8(v)) {
+				myMap["W"] = true
+				myMap[string(uint8(v))] = true
+			}
+		}
+	}
+	return myMap
 }
 
 func isTerminalString(string2 string) bool{
@@ -109,6 +135,83 @@ func isTerminalString(string2 string) bool{
 }
 
 func isTerminal(char uint8) bool{
+	if char >=97 && char<=122{
+		return true
+	}
+	return false
+}
+
+func RandomStringGenerator(length int,letterRunes []rune) string {
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
+func CreateAccessibleRunes(arrayToDelete map[string]bool) []rune{
+	var letterRunes = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	for i:=0;i<len(letterRunes);i++{
+		url := letterRunes[i]
+		for rem := range arrayToDelete{
+			if string(url)==rem {
+				letterRunes = append(letterRunes[:i],letterRunes[i+1:]...)
+				i--
+				break
+			}
+		}
+	}
+	return letterRunes
+}
+
+func GetProductionBySymbol(myarray []structure.MapsWithDuplicate, symbol string) []string {
+	var arrayProduction []string
+	for i := 0; i < len(myarray); i++ {
+		if myarray[i].Symbols == symbol {
+			arrayProduction = append(arrayProduction, myarray[i].Values)
+		}
+	}
+	return arrayProduction
+}
+
+
+func GetTerminalByProduction(myArray []structure.MapsWithDuplicate,input string) int{
+	for i:=0;i<len(myArray);i++{
+		if myArray[i].Values == input {
+			return i
+		}
+	}
+	return 0
+}
+
+
+func DuplicateCount(list []string) map[string]int {
+
+	duplicateFrequency := make(map[string]int)
+
+	for _, item := range list {
+		// check if the item/element exist in the duplicate_frequency map
+
+		_, exist := duplicateFrequency[item]
+
+		if exist {
+			duplicateFrequency[item] += 1 // increase counter by 1 if already in the map
+		} else {
+			duplicateFrequency[item] = 1 // else start counting from 1
+		}
+	}
+	return duplicateFrequency
+}
+
+func GetMyArrayProductions(myarray *[]structure.MapsWithDuplicate) map[string]bool{
+	myMap := make(map[string]bool)
+	for i:=0;i<len(*myarray);i++ {
+		myMap[(*myarray)[i].Symbols] = false
+	}
+	return myMap
+}
+
+func IsTerminalChar(char uint8) bool{
 	if char >=97 && char<=122{
 		return true
 	}
